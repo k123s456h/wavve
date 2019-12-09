@@ -127,7 +127,7 @@ class LogicRecent(object):
                                 episode = ModelWavveEpisode('auto', info=vod, streaming=json_data)
                                 db.session.add(episode)
                                 if json_data['playurl'].find('preview') != -1:
-                                    episode.etc_abort = 15
+                                    episode.etc_abort = 7
                                     db.session.commit()
                                     continue
                         else:
