@@ -136,7 +136,7 @@ class LogicRecent(object):
                             else:
                                 episode.set_streaming(json_data)
                         if episode.quality != auto_quality:
-                            episode.etc_abort = 16
+                            episode.etc_abort = 6
                             db.session.commit()
                             continue
                         # 채널, 프로그램 체크
