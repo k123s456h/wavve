@@ -171,10 +171,6 @@ class LogicRecent(object):
 
                         if download_mode == '0':
                             for program_name in except_programs:
-                                logger.debug(program_name)
-                                logger.debug([program_name])
-                                logger.debug(episode.program_name)
-                                logger.debug([episode.program_name])
                                 if episode.programtitle.replace(' ', '').find(program_name) != -1:
                                     episode.etc_abort = 13
                                     flag_download = False
