@@ -150,12 +150,11 @@ $("body").on('click', '#program_search', function(e){
 });
 
 function add_condition_list(mode, value) {
-  data = {'mode':mode, 'value':value}
   $.ajax({
     url: '/' + package_name + '/ajax/add_condition_list',
     type: "POST", 
     cache: false,
-    data: data,
+    data: {mode:mode, value:value},
     dataType: "json",
     success: function (data) {
       if ( data == 1) {

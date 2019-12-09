@@ -282,20 +282,15 @@ class LogicRecent(object):
             mode = req.form['mode']
             value = req.form['value']
             old_value = ModelSetting.get(mode)
-            
             entity_list = [x.strip().replace(' ', '') for x in old_value.replace('\n', ',').split(',')]
-
-            logger.debug('except value:%s', old_value)
-
-            if target.replace(' ', '') in entity_list:
-            #if entity.value.find(target) != -1:
+            if value.replace(' ', '') in entity_list:
                 db.session.commit() 
                 return 0
             else:
-                if entity.value != '':
-                    entity.value += ', '
-                entity.value += target
-                db.session.commit() 
+                if old_value != '':
+                    old_value += ', '
+                old_value += value
+                ModelSetting.set(mode, old_value)
                 return 1
         except Exception as e:
             logger.error('Exception:%s', e)
