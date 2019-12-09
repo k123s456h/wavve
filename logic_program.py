@@ -99,7 +99,6 @@ class LogicProgram(object):
         try:
             LogicProgram.start()
             entity = WavveProgramEntity(episode_code, quality)
-            #ret = TvingBasic.get_episode_json(entity.episode_code, entity.quality)
             entity.json_data = Wavve.vod_contents_contentid(episode_code)
             #entity.json_data['filename'] = Wavve.get_filename(entity.json_data, quality)
             LogicProgram.download_queue.put(entity)
