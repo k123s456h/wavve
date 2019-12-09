@@ -163,8 +163,10 @@ class LogicRecent(object):
                                     logger.debug(dt_start)
                                     if (dt_now - dt_start).seconds < 0:
                                         dt_start = dt_start + timedelta(days=-1)
-                                    detail = Wavve.vod_contents_contentid(episode.contentid)
-                                    qvod_playtime = detail['playtime']
+                                    #detail = Wavve.vod_contents_contentid(episode.contentid)
+                                    if 'detail' not in episode.conetents_json:
+                                        episode.conetents_json['detail'] = Wavve.vod_contents_contentid(episode.contentid)
+                                    qvod_playtime = episode.conetents_json['detail']['playtime']
                                     delta = (dt_now - dt_start).seconds
                                     if int(qvod_playtime) > delta:
                                         flag_download = False
