@@ -153,18 +153,23 @@ class LogicRecent(object):
                             # 시간체크
                             if flag_download:
                                 #print episode.json
+                                logger.debug(episode.episodetitle)
                                 match = re.compile(r'Quick\sVOD\s(?P<time>\d{2}\:\d{2})\s').search(episode.episodetitle)
                                 if match:
                                     dt_now = datetime.now()
+                                    logger.debug(dt_now)
                                     dt_tmp = datetime.strptime(match.group('time'), '%H:%M')
                                     dt_start = datetime(dt_now.year, dt_now.month, dt_now.day, dt_tmp.hour, dt_tmp.minute, 0, 0)
+                                    logger.debug(dt_start)
                                     if (dt_now - dt_start).seconds < 0:
                                         dt_start = dt_start + timedelta(days=-1)
-                                    qvod_playtime = episode.contents_json['playtime']
+                                    detail = Wavve.vod_contents_contentid(episode.contentid)
+                                    qvod_playtime = detail['playtime']
                                     delta = (dt_now - dt_start).seconds
                                     if int(qvod_playtime) > delta:
                                         flag_download = False
                                         episode.etc_abort = 8
+                                        
                                     logger.debug('QVOD %s %s %s %s', flag_download, match.group('time'), qvod_playtime, delta)
                                 else:
                                     logger.debug('QVOD fail..')
