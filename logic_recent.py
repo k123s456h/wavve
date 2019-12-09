@@ -101,7 +101,7 @@ class LogicRecent(object):
                             elif episode.etc_abort > 10:
                                 # 1:알수없는이유 시작실패, 2 타임오버, 3, 강제스톱.킬
                                 # 11:제외채널, 12:제외프로그램
-                                # 13:장르제외, 14:화이트리스트 제외, 15:권한없음
+                                # 13:장르제외, 14:화이트리스트 제외, 7:권한없음, 6:화질다름
                                 logger.debug('EPC Abort : %s', episode.etc_abort)
                                 continue
                             elif episode.retry > 20:
@@ -135,7 +135,10 @@ class LogicRecent(object):
                                 continue
                             else:
                                 episode.set_streaming(json_data)
-                        
+                        if episode.quality != auto_quality:
+                            episode.etc_abort = 16
+                            db.session.commit()
+                            continue
                         # 채널, 프로그램 체크
                         flag_download = True
                         if contenttype == 'onairvod':
