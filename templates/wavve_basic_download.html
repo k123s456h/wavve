@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+{% block content %}
+<ul class="nav nav-pills bg-light shadow text-dark" >
+  <li class="nav-item"><a class="nav-link" href="/wavve/basic/setting">설정</a></li>
+  <li class="nav-item"><a class="nav-link active" href="/wavve/basic/download">다운로드</a></li>
+</ul>
+<div class="d-inline-block"></div>
+
+<div>
+  <form>
+    {{ macros.setting_input_text_and_buttons('url', 'URL or Code', [['analyze', '분석'], ['go_wavve', '웨이브']], desc='URL & Program Code & Episode Code & Movie Code') }}
+  </form>
+  <div id='detail'></div>
+  <div id="more"></div>
+</div>
+
+
+<script type="text/javascript">
+var package_name = 'wavve';
+var current_data = null;
+
+$(document).ready(function(){
+  if ( "{{arg['code']}}" != "None" && "{{arg['code']}}" != "" ) {
+    episode = $(this).data('episode');
+    document.getElementById("url").value = "{{arg['code']}}";
+    document.getElementById("analyze").click();
+  }
+});
+
+
+//분석
+$("#analyze").click(function(e) {
+  e.preventDefault();
+  if ($("#url").val() == "") {
+    $.notify('<strong>URL이나 Code를 입력하세요.</strong>', {
+      type: 'warning'
+    });
+    return;
+  }
+  $.ajax({
+    url: '/' + package_name + '/ajax/analyze',
+    type: "POST", 
+    cache: false,
+    data: {url: $("#url").val()},
+    dataType: "json",
+    success: function (data) {
+      make_analyse_result(data)
+    }
+  });
+});
+
+function make_program_page(ret) {
+  data = ret.data.list
+  str = '<hr>';
+  for (i in data) {
+    str += m_row_start();
+    tmp = '<img src="http://' + data[i].image + '" class="img-fluid">'
+    str += m_col(3, tmp)
+    tmp = '<strong>' + data[i].programtitle+' ' + data[i].episodenumber + '회</strong><br>';
+    tmp += data[i].episodetitle + '<br>';
+    tmp += data[i].releasedate + '<br><p></p>';
+    tmp += m_button('episode_search_btn', '에피소드', [{'key':'code', 'value':data[i].contentid}])
+    str += m_col(9, tmp)
+    str += m_row_end();
+    if (i != data.length -1) str += m_hr(0);
+  }
+  if (ret.page == '1') {
+    document.getElementById("detail").innerHTML = str;
+  } else {
+    document.getElementById("detail").innerHTML += str;
+  }
+
+  if (parseInt(ret.data.pagecount) > parseInt(ret.data.count)) {
+    str = '<div class="d-inline-block"></div><form>';
+    str += '<button id="more_btn" class="btn btn-outline-secondary btn-lg btn-block" type="button" data-code="'+ret.code+'" data-page="'+ret.page+'">More</button>'
+    str += '</form>';
+    document.getElementById("more").innerHTML = str;
+  } else {
+    document.getElementById("more").innerHTML = '';
+  }
+}
+
+// 프로그램 More 버튼
+$("body").on('click', '#more_btn', function(e){
+  e.preventDefault();
+  code = current_data.code;
+  page = parseInt($(this).data('page')) + 1;
+  $.ajax({
+    url: '/' + package_name + '/ajax/program_page',
+    type: "POST", 
+    cache: false,
+    data: {code:code, page:page},
+    dataType: "json",
+    success: function (data) {
+      make_program_page(data);
+    }
+  });
+});
+
+
+// 에피소드 서치
+$("body").on('click', '#episode_search_btn', function(e){
+  e.preventDefault();
+  contentid = $(this).data('code');
+  document.getElementById("url").value = contentid;
+  document.getElementById("analyze").click();
+});
+
+
+//에피소드 다운로드 시작
+$("body").on('click', '#episode_download_start', function(e){
+  e.preventDefault();
+  url = $(this).data('url');
+  filename = $(this).data('filename');
+  $.ajax({
+    url: '/' + package_name + '/ajax/episode_download_url',
+    type: "POST", 
+    cache: false,
+    data: {url:url, filename:filename},
+    dataType: "json",
+    success: function (list) {
+    }
+  });
+});
+
+$("body").on('change', '#select_quality', function(e){
+  e.preventDefault();
+  $.ajax({
+    url: '/' + package_name + '/ajax/analyze',
+    type: "POST", 
+    cache: false,
+    data: {url: $("#url").val(), quality:$('#select_quality').val()},
+    dataType: "json",
+    success: function (data) {
+      make_analyse_result(data)
+    }
+  });
+});
+
+function make_analyse_result(data) {
+  if (data == null) {
+    $.notify('<strong>웨이브에서 정보를 가져올 수 없습니다.<br>잠시 후 이용하세요.</strong>', {
+      type: 'warning'
+    });
+    return
+  }
+  current_data = data
+  if (data['url_type'] == 'None') {
+    $.notify('<strong>유효한 값이 아닙니다.</strong>', {
+      type: 'warning'
+    });
+  } else if (data['url_type'] == 'episode') {
+    str = m_row_start();
+    tmp = '<img src="http://' + data.episode.image + '" class="img-fluid">'
+    str += m_col(3, tmp)
+    tmp = '<strong>' + data.episode.programtitle+' ' + data.episode.episodenumber + '회</strong><br>';
+    tmp += data.episode.episodetitle + '<br>';
+    tmp += data.episode.releasedate + '<br>';
+    tmp += data.episode.synopsis + '<br><br>';
+    tmp += '파일명 : ' + data.available.filename + '<br><br>';
+    if (data.available.preview) {
+      tmp += '다운로드 권한 없음<br><br>';
+      tmp2 = ''
+    } else {
+      tmp2 = '<div class="form-inline">'
+      tmp2 += '화질선택&nbsp;&nbsp;&nbsp;&nbsp;<select id="select_quality" name="select_quality" class="form-control form-control-sm">'
+      for (j in data.streaming.qualities.list) {
+        tmp2 += '<option value="'+data.streaming.qualities.list[j].id +'" '+((data.streaming.qualities.list[j].id == data.available.current_quality) ? 'selected' : '')+'>'+data.streaming.qualities.list[j].id +'</option>'
+      }
+      tmp2 += `</select>&nbsp;&nbsp;&nbsp;&nbsp;`
+      tmp2 += '</div>'
+      //tmp2 += m_button('episode_download_start', '다운로드', [{'key':'code', 'value':data.episode.contentid}])
+      tmp2 += m_button('episode_download_start', '다운로드', [{'key':'filename', 'value':data.available.filename}, {'key':'url', 'value':data.streaming.playurl}])
+    }
+    tmp2 += m_button('program_search', '프로그램 검색', [{'key':'code', 'value':data.episode.programid}])
+    tmp += m_button_group(tmp2)
+    str += m_col(9, tmp)
+    str += m_row_end();
+    document.getElementById("detail").innerHTML = str;
+    document.getElementById("more").innerHTML = '';
+  } else if (data['url_type'] == 'program') {
+    
+    make_program_page(data);
+  } else if (data['url_type'] == 'movie') {
+    str = m_row_start();
+    tmp = '<img src="http://' + data.info.image + '" class="img-fluid">'
+    str += m_col(3, tmp)
+    tmp = '<strong>' + data.info.title + '</strong><br>';
+    tmp += data.info.releasedate + '<br>';
+    tmp += data.info.synopsis + '<br><br>';
+    tmp += '파일명 : ' + data.available.filename + '<br><br>';
+    if (data.available.preview) {
+      tmp += '다운로드 권한 없음<br><br>';
+      tmp2 = ''
+    } else {
+      tmp2 = '<div class="form-inline">'
+      tmp2 += '화질선택&nbsp;&nbsp;&nbsp;&nbsp;<select id="select_quality" name="select_quality" class="form-control form-control-sm">'
+      for (j in data.streaming.qualities.list) {
+        tmp2 += '<option value="'+data.streaming.qualities.list[j].id +'" '+((data.streaming.qualities.list[j].id == data.available.current_quality) ? 'selected' : '')+'>'+data.streaming.qualities.list[j].id +'</option>'
+      }
+      tmp2 += `</select>&nbsp;&nbsp;&nbsp;&nbsp;`
+      tmp2 += '</div>'
+      //tmp2 += m_button('episode_download_start', '다운로드', [{'key':'code', 'value':data.episode.contentid}])
+      tmp2 += m_button('episode_download_start', '다운로드', [{'key':'filename', 'value':data.available.filename}, {'key':'url', 'value':data.streaming.playurl}])
+    }
+    tmp2 += m_button('daum_search', 'Daum 검색', [{'key':'title', 'value':data.info.title}])
+    tmp += m_button_group(tmp2)
+    str += m_col(9, tmp)
+    str += m_row_end();
+    document.getElementById("detail").innerHTML = str;
+    document.getElementById("more").innerHTML = '';
+
+
+  }
+}
+
+// 프로그램 서치
+$("body").on('click', '#program_search', function(e){
+  e.preventDefault();
+  code = $(this).data('code');
+  document.getElementById("url").value = code;
+  document.getElementById("analyze").click();
+});
+
+
+$("#go_wavve").click(function(e) {
+  e.preventDefault();
+  window.open('http://www.wavve.com', '_blank'); 
+});
+
+
+// 다음 영화 검색
+$("body").on('click', '#daum_search', function(e){
+  e.preventDefault();
+  title = $(this).data('title');
+  window.open('https://search.daum.net/search?w=tot&q=' + title, '_blank'); 
+});
+</script>    
+{% endblock %}

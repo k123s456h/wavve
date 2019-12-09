@@ -1,0 +1,284 @@
+{% extends "base.html" %}
+{% block content %}
+<style type="text/css">
+  .my_hover:hover{
+    background-color: #ffff00;
+    transition: all 0.01s ease-in-out;
+  }
+</style>
+
+<ul class="nav nav-pills bg-light shadow text-dark" >
+  <li class="nav-item"><a class="nav-link" href="/wavve/program/setting">설정</a></li>
+  <li class="nav-item"><a class="nav-link active" href="/wavve/program/select">선택</a></li>
+  <li class="nav-item"><a class="nav-link" href="/wavve/program/list">목록</a></li>
+</ul>
+<div class="d-inline-block"></div>
+
+<form id='program_list'>
+{{ macros.setting_input_text_and_buttons('url', 'URL or Code', [['analyze', '분석'], ['go_wavve', '웨이브']], desc='URL & Program Code & Episode Code') }}
+</form>
+<form id="program_auto_form">
+<div id='detail1'></div>
+<div id="more"></div>
+<form>
+ 
+
+<script type="text/javascript">
+var package_name = 'wavve';
+var current_data = null;
+var default_quality = "{{arg['program_auto_quality']}}"
+
+
+$(document).ready(function(){
+  //$('input[name=login_type]')[0].checked = true;
+  if ( "{{arg['code']}}" != "None" && "{{arg['code']}}" != "" ) {
+    episode = $(this).data('episode');
+    document.getElementById("url").value = "{{arg['code']}}";
+    document.getElementById("analyze").click();
+  }
+});
+
+
+$("body").on('click', '#go_wavve', function(e){
+  e.preventDefault();
+  window.open('https://www.wavve.com', '_blank'); 
+});
+
+//분석
+$("#analyze").click(function(e) {
+  e.preventDefault();
+  if ($("#url").val() == "") {
+    $.notify('<strong>URL이나 Code를 입력하세요.</strong>', {
+      type: 'warning'
+    });
+    return;
+  }
+  $.ajax({
+    url: '/' + package_name + '/ajax/analyze',
+    type: "POST", 
+    cache: false,
+    data: {url: $("#url").val()},
+    dataType: "json",
+    success: function (data) {
+      if (data == null) {
+        $.notify('<strong>웨이브에서 정보를 가져올 수 없습니다.<br>잠시 후 이용하세요.</strong>', {
+          type: 'warning'
+        });
+        return
+      }
+      if (data['url_type'] == 'None') {
+        $.notify('<strong>유효한 값이 아닙니다.</strong>', {
+          type: 'warning'
+        });
+      } else if (data['url_type'] == 'episode') {
+        program = data.episode.programid
+        document.getElementById("url").value = program;
+        document.getElementById("analyze").click();
+      } else if (data['url_type'] == 'program') {
+        make_program_page(data);
+      }
+    }
+  });
+});
+
+
+// 프로그램 More 버튼
+$("body").on('click', '#more_btn', function(e){
+  e.preventDefault();
+  code = $(this).data('code');
+  page = parseInt($(this).data('page')) + 1;
+  $.ajax({
+    url: '/' + package_name + '/ajax/program_page',
+    type: "POST", 
+    cache: false,
+    data: {code:code, page:page},
+    dataType: "json",
+    success: function (data) {
+      make_program_page(data);
+    }
+  });
+});
+
+
+function make_program_page(ret) {
+  qualities = ['2160p', '1080p', '720p', '480p', '360p']
+  str = '';
+  if (ret.page == '1') {
+    tmp = '<div class="form-inline">'
+    tmp += m_button('check_download_btn', '선택 다운로드 추가', []);
+    tmp += m_button('all_check_on_btn', '전체 선택', []);
+    tmp += m_button('all_check_off_btn', '전체 해체', []);
+    tmp += '&nbsp;&nbsp;&nbsp;&nbsp;<select id="all_quality" name="all_quality" class="form-control form-control-sm">'
+    for (i in qualities) {
+      tmp += '<option value="'+qualities[i]+'" '+((qualities[i]==default_quality)?'selected':'')+'>'+qualities[i]+'</option>'
+    }
+    tmp += `</select>`
+    tmp += '</div>'
+    tmp += m_button('all_quality_btn', '전체 화질 적용', []);
+    tmp = m_button_group(tmp)
+    str += tmp
+  }
+
+  data = ret.data.list
+  str += '<hr>';
+  for (i in data) {
+    str += m_row_start();
+    tmp = '<img src="http://' + data[i].image + '" class="img-fluid">'
+    str += m_col(3, tmp)
+    tmp = '<strong>' + data[i].programtitle+' ' + data[i].episodenumber + '회</strong><br>';
+    tmp += data[i].episodetitle + '<br>';
+    tmp += data[i].releasedate + '<br><p></p>';
+    
+    tmp += '<div class="form-inline">'
+    tmp += '<input id="checkbox|'+data[i].contentid+'" name="checkbox|'+data[i].contentid+'" type="checkbox" checked data-toggle="toggle" data-on="선 택" data-off="-" data-onstyle="success" data-offstyle="danger" data-size="small">&nbsp;&nbsp;&nbsp;&nbsp;'
+    
+    tmp += '<select id="select|'+data[i].contentid+'" name="select|'+data[i].contentid+'" class="form-control form-control-sm">'
+    for (j in qualities) {
+      tmp += '<option value="'+qualities[j]+'" '+((qualities[j]==default_quality)?'selected':'')+'>'+qualities[j]+'</option>'
+    }
+    tmp += `</select>&nbsp;&nbsp;&nbsp;&nbsp;`
+    
+    tmp += m_button('insert_download_btn', '다운로드 추가', [{'key':'code', 'value':data[i].contentid}])
+    tmp += m_button('quality_list_btn', '지원 화질 확인', [{'key':'code', 'value':data[i].contentid}])
+    tmp += '</div>'
+
+    str += m_col(9, tmp)
+    str += m_row_end();
+    if (i != data.length -1) str += m_hr(0);
+  }
+  str += "<div id='detail"+(parseInt(ret.page)+1)+"'></div>"
+  document.getElementById("detail"+parseInt(ret.page)).innerHTML = str;
+  
+  //if (parseInt(ret.data.pagecount) - (ret.page -1) * 20 + parseInt(ret.data.count) > 0) {
+  if (parseInt(ret.data.pagecount) > parseInt(ret.data.count)) {
+    str = '<div class="d-inline-block"></div><form>';
+    str += '<button id="more_btn" class="btn btn-outline-secondary btn-lg btn-block" type="button" data-code="'+ret.code+'" data-page="'+ret.page+'">More</button>'
+    str += '</form>';
+    document.getElementById("more").innerHTML = str;
+  } else {
+    document.getElementById("more").innerHTML = '';
+  }
+  $('input[id^="checkbox|"]').bootstrapToggle()
+}
+
+
+$("body").on('click', '#quality_list_btn', function(e){
+  e.preventDefault();
+  code = $(this).data('code');
+  $.ajax({
+    url: '/' + package_name + '/ajax/get_contents',
+    type: "POST", 
+    cache: false,
+    data: {code:code},
+    dataType: "json",
+    success: function (data) {
+      //m_modal(data['qualities']);
+      data = data['qualities']['list']
+      str = ''
+      for (i in data) {
+        str += '화질 : ' + data[i].id + ' 파일크기 : ' + data[i].filesize + '<br>'
+      }
+      m_modal(str);
+    }
+  });
+});
+
+
+$("body").on('click', '#all_check_on_btn', function(e){
+  e.preventDefault();
+  $('input[id^="checkbox|"]').bootstrapToggle('on')
+});
+
+$("body").on('click', '#all_check_off_btn', function(e){
+  e.preventDefault();
+  $('input[id^="checkbox|"]').bootstrapToggle('off')
+});
+
+$("body").on('click', '#all_quality_btn', function(e){
+  e.preventDefault();
+  v = document.getElementById("all_quality").value
+  tmp = $('select[id^="select|"]')
+  for (i in tmp) {
+    for(j in tmp[i]) {
+      if (tmp[i][j] == null) 
+        break
+      if (v == tmp[i][j].value)  {
+        tmp[i].value = v
+        break
+      }
+    }
+  }
+
+});
+
+
+// 하나씩 다운로드 추가
+$("body").on('click', '#insert_download_btn', function(e){
+  e.preventDefault();
+  code = $(this).data('code');
+  quality = document.getElementById('select|'+code).value
+  $.ajax({
+    url: '/' + package_name + '/ajax/download_program',
+    type: "POST", 
+    cache: false,
+    data: {code:code, quality:quality},
+    dataType: "json",
+    success: function (data) {
+      if (data == 'success') {
+        $.notify('<strong>다운로드를 추가 하였습니다.</strong>', {
+          type: 'success'
+        });
+      } else {
+        $.notify('<strong>실패하였습니다.</strong>', {
+          type: 'warning'
+        });
+      }
+    }
+  });
+});
+
+
+$("body").on('click', '#check_download_btn', function(e){
+  e.preventDefault();
+  all = $('input[id^="checkbox|"]')
+  str = ""
+  for (i in all) {
+    if (all[i].checked){
+      code = all[i].id.split('|')[1]
+      quality = document.getElementById('select|'+code).value
+      str += code+"|"+quality+","
+    }
+  }
+  if (str == "") {
+    $.notify('<strong>선택하세요.</strong>', {
+      type: 'warning'
+    });
+    return
+  }
+
+  $.ajax({
+    url: '/' + package_name + '/ajax/download_program_check',
+    type: "POST", 
+    cache: false,
+    data: {data:str},
+    dataType: "json",
+    success: function (data) {
+      if (data.ret == 'success') {
+        $.notify('<strong>'+data.log+'개를 추가하였습니다.</strong>', {
+          type: 'success'
+        });
+      } else {
+        $.notify('<strong>'+data.log+'</strong>', {
+          type: 'warning'
+        });
+      }
+    }
+  });
+
+});
+
+
+
+
+</script>    
+{% endblock %}
