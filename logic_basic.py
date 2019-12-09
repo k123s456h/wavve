@@ -84,7 +84,9 @@ class LogicBasic(object):
                     quality = ModelSetting.get('quality')
                 data = Wavve.vod_contents_contentid(code)
                 contenttype = 'onairvod' if data['type'] == 'onair' else 'vod'
+                #data2 = Wavve.streaming(contenttype, code, quality, ModelSetting.get('credential'))
                 data2 = Wavve.streaming(contenttype, code, quality, ModelSetting.get('credential'))
+                logger.debug(data2)
                 data3 = {}
                 data3['filename'] = Wavve.get_filename(data, quality)
                 data3['preview'] = (data2['playurl'].find('preview') != -1)

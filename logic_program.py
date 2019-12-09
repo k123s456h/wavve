@@ -101,7 +101,7 @@ class LogicProgram(object):
             entity = WavveProgramEntity(episode_code, quality)
             #ret = TvingBasic.get_episode_json(entity.episode_code, entity.quality)
             entity.json_data = Wavve.vod_contents_contentid(episode_code)
-            entity.json_data['filename'] = Wavve.get_filename(entity.json_data, quality)
+            #entity.json_data['filename'] = Wavve.get_filename(entity.json_data, quality)
             LogicProgram.download_queue.put(entity)
         except Exception as e: 
             logger.error('Exception:%s', e)
@@ -128,6 +128,7 @@ class LogicProgram(object):
                 while True:
                     count += 1
                     streaming_data = Wavve.streaming(contenttype, entity.episode_code, entity.quality, ModelSetting.get('credential'))
+                    entity.json_data['filename'] = Wavve.get_filename(entity.json_data, streaming_data['quality'])
                     if streaming_data is not None:
                         break
                     else:

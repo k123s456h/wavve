@@ -268,6 +268,7 @@ def ajax(sub):
             try:
                 code = request.form['code']
                 ret = Wavve.vod_contents_contentid(code)
+                ret = Wavve.streaming(ret['type'], ret['contentid'], '2160p', ModelSetting.get('credential'))
                 return jsonify(ret)
             except Exception as e: 
                 logger.error('Exception:%s', e)
