@@ -29,7 +29,6 @@ from .logic_basic import LogicBasic
 
 
 # 로그
-
 #########################################################
         
 class LogicRecent(object):
@@ -37,7 +36,6 @@ class LogicRecent(object):
 
     @staticmethod
     def scheduler_function():
-        
         try:
             logger.debug('Wavve scheduler_function start..')
             LogicBasic.login()
