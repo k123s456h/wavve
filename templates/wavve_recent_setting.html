@@ -43,6 +43,7 @@ var download_mode = "{{arg['download_mode']}}";
 
 $(document).ready(function(){
   set_download_mode(download_mode)
+  use_collapse("qvod_download", reverse=true)
 });
 
 $('#qvod_download').change(function() {
