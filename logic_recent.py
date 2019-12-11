@@ -213,7 +213,7 @@ class LogicRecent(object):
                         if episode.id is None:
                             logger.debug('PROGRAM:%s', episode.programtitle)
                         
-                        f = ffmpeg.Ffmpeg(episode.playurl, episode.filename, plugin_id=episode.id, listener=LogicBasic.ffmpeg_listener, max_pf_count=max_pf_count, call_plugin=package_name, save_path=save_path)
+                        f = ffmpeg.Ffmpeg(episode.playurl, episode.filename, plugin_id=episode.id, listener=LogicBasic.ffmpeg_listener, max_pf_count=max_pf_count, call_plugin='%s_recent' % package_name, save_path=save_path)
                         f.start()
                         LogicRecent.current_auto_count_ffmpeg += 1
                         #f.start_and_wait()
@@ -225,7 +225,8 @@ class LogicRecent(object):
                         logger.error(traceback.format_exc())
                         db.session.rollback()
                     finally:
-                        logger.debug('wait..')
+                        #logger.debug('wait..')
+                        pass
             logger.debug('=======================================')
         except Exception as e: 
             logger.error('Exception:%s', e)

@@ -9,13 +9,11 @@ from datetime import datetime
 # third-party
 
 # sjva 공용
-from framework.logger import get_logger
 from framework import db, app, path_app_root
-# 패키지
 
-# 로그
-package_name = __name__.split('.')[0].split('_sjva')[0]
-logger = get_logger(package_name)
+# 패키지
+from .plugin import logger, package_name
+
 
 db_file = os.path.join(path_app_root, 'data', 'db', '%s.db' % package_name)
 app.config['SQLALCHEMY_BINDS'][package_name] = 'sqlite:///%s' % (db_file)

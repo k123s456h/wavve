@@ -49,36 +49,7 @@ $("#analyze").click(function(e) {
   });
 });
 
-function make_program_page(ret) {
-  data = ret.data.list
-  str = '<hr>';
-  for (i in data) {
-    str += m_row_start();
-    tmp = '<img src="http://' + data[i].image + '" class="img-fluid">'
-    str += m_col(3, tmp)
-    tmp = '<strong>' + data[i].programtitle+' ' + data[i].episodenumber + '회</strong><br>';
-    tmp += data[i].episodetitle + '<br>';
-    tmp += data[i].releasedate + '<br><p></p>';
-    tmp += m_button('episode_search_btn', '에피소드', [{'key':'code', 'value':data[i].contentid}])
-    str += m_col(9, tmp)
-    str += m_row_end();
-    if (i != data.length -1) str += m_hr(0);
-  }
-  if (ret.page == '1') {
-    document.getElementById("detail").innerHTML = str;
-  } else {
-    document.getElementById("detail").innerHTML += str;
-  }
 
-  if (parseInt(ret.data.pagecount) > parseInt(ret.data.count)) {
-    str = '<div class="d-inline-block"></div><form>';
-    str += '<button id="more_btn" class="btn btn-outline-secondary btn-lg btn-block" type="button" data-code="'+ret.code+'" data-page="'+ret.page+'">More</button>'
-    str += '</form>';
-    document.getElementById("more").innerHTML = str;
-  } else {
-    document.getElementById("more").innerHTML = '';
-  }
-}
 
 // 프로그램 More 버튼
 $("body").on('click', '#more_btn', function(e){
@@ -136,6 +107,60 @@ $("body").on('change', '#select_quality', function(e){
     }
   });
 });
+
+// 프로그램 서치
+$("body").on('click', '#program_search', function(e){
+  e.preventDefault();
+  code = $(this).data('code');
+  document.getElementById("url").value = code;
+  document.getElementById("analyze").click();
+});
+
+
+$("#go_wavve").click(function(e) {
+  e.preventDefault();
+  window.open('http://www.wavve.com', '_blank'); 
+});
+
+
+// 다음 영화 검색
+$("body").on('click', '#daum_search', function(e){
+  e.preventDefault();
+  title = $(this).data('title');
+  window.open('https://search.daum.net/search?w=tot&q=' + title, '_blank'); 
+});
+
+
+function make_program_page(ret) {
+  data = ret.data.list
+  str = '<hr>';
+  for (i in data) {
+    str += m_row_start();
+    tmp = '<img src="http://' + data[i].image + '" class="img-fluid">'
+    str += m_col(3, tmp)
+    tmp = '<strong>' + data[i].programtitle+' ' + data[i].episodenumber + '회</strong><br>';
+    tmp += data[i].episodetitle + '<br>';
+    tmp += data[i].releasedate + '<br><p></p>';
+    tmp += m_button('episode_search_btn', '에피소드', [{'key':'code', 'value':data[i].contentid}])
+    str += m_col(9, tmp)
+    str += m_row_end();
+    if (i != data.length -1) str += m_hr(0);
+  }
+  if (ret.page == '1') {
+    document.getElementById("detail").innerHTML = str;
+  } else {
+    document.getElementById("detail").innerHTML += str;
+  }
+
+  if (parseInt(ret.data.pagecount) > parseInt(ret.data.count)) {
+    str = '<div class="d-inline-block"></div><form>';
+    str += '<button id="more_btn" class="btn btn-outline-secondary btn-lg btn-block" type="button" data-code="'+ret.code+'" data-page="'+ret.page+'">More</button>'
+    str += '</form>';
+    document.getElementById("more").innerHTML = str;
+  } else {
+    document.getElementById("more").innerHTML = '';
+  }
+}
 
 function make_analyse_result(data) {
   if (data == null) {
@@ -214,26 +239,6 @@ function make_analyse_result(data) {
   }
 }
 
-// 프로그램 서치
-$("body").on('click', '#program_search', function(e){
-  e.preventDefault();
-  code = $(this).data('code');
-  document.getElementById("url").value = code;
-  document.getElementById("analyze").click();
-});
 
-
-$("#go_wavve").click(function(e) {
-  e.preventDefault();
-  window.open('http://www.wavve.com', '_blank'); 
-});
-
-
-// 다음 영화 검색
-$("body").on('click', '#daum_search', function(e){
-  e.preventDefault();
-  title = $(this).data('title');
-  window.open('https://search.daum.net/search?w=tot&q=' + title, '_blank'); 
-});
 </script>    
 {% endblock %}

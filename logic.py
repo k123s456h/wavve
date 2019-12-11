@@ -21,14 +21,12 @@ from framework.util import Util
 import framework.wavve.api as Wavve
 
 # 패키지
+from plugin import logger, package_name
 import ffmpeg
 from .model import ModelSetting
 from .logic_basic import LogicBasic
 from .logic_recent import LogicRecent
 
-# 로그
-package_name = __name__.split('.')[0].split('_sjva')[0]
-logger = get_logger(package_name)
 #########################################################
         
 class Logic(object):

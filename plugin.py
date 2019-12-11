@@ -30,7 +30,6 @@ from .logic_recent import LogicRecent
 from .logic_program import LogicProgram, WavveProgramEntity
 
 
-
 blueprint = Blueprint(package_name, package_name, url_prefix='/%s' %  package_name, template_folder=os.path.join(os.path.dirname(__file__), 'templates'))
 
 def plugin_load():
