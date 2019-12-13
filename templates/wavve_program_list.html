@@ -72,7 +72,8 @@ function make_download_list(data) {
     
     str += m_col(1, data[i].quality);
     tmp = data[i].json_data.programtitle + ' '  + data[i].json_data.episodenumber + '회'
-    tmp += '<br>' + data[i].json_data.filename
+    //if (data[i].json_data.filename != null)
+    //  tmp += '<br>' + data[i].json_data.filename
     str += m_col(4, tmp);
 
     label = data[i].ffmpeg_status_kor
