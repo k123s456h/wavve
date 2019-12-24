@@ -150,7 +150,6 @@ class LogicRecent(object):
                                         break
                             # 시간체크
                             if flag_download:
-                                #print episode.json
                                 logger.debug(episode.episodetitle)
                                 match = re.compile(r'Quick\sVOD\s(?P<time>\d{2}\:\d{2})\s').search(episode.episodetitle)
                                 if match:
