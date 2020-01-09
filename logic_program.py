@@ -20,12 +20,10 @@ from framework.util import Util
 
 # 패키지
 import plugin
+from .plugin import package_name, logger
 from .model import ModelSetting
 import framework.wavve.api as Wavve
 
-# 로그
-package_name = __name__.split('.')[0].split('_sjva')[0]
-logger = get_logger(package_name)
 #########################################################
 
 
