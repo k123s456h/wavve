@@ -62,6 +62,8 @@ class Logic(object):
         'program_auto_make_folder' : 'True', 
         'program_auto_count_ffmpeg' : '4',
         'program_auto_quality' : '1080p', 
+
+        'qvod_check_quality' : 'False'
         
     }
     

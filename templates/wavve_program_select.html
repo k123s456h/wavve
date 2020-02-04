@@ -172,14 +172,18 @@ $("body").on('click', '#quality_list_btn', function(e){
     data: {code:code},
     dataType: "json",
     success: function (data) {
-      //console.log(data)
-      //m_modal(data['qualities']);
-      data = data['qualities']['list']
-      str = ''
-      for (i in data) {
-        str += '화질 : ' + data[i].id + ' 파일크기 : ' + data[i].filesize + '<br>'
+      if (data != null) {
+        data = data['qualities']['list']
+        str = ''
+        for (i in data) {
+          str += '화질 : ' + data[i].id + ' 파일크기 : ' + data[i].filesize + '<br>'
+        }
+        m_modal(str);
+      } else {
+        $.notify('<strong>정보 확인 실패.<br>잠시 후 다시 확인하세요</strong>', {
+          type: 'warning'
+        });
       }
-      m_modal(str);
     }
   });
 });
