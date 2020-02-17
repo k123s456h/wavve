@@ -150,3 +150,18 @@ class ModelWavveEpisode(db.Model):
         import framework.wavve.api as Wavve
         self.filename = Wavve.get_filename(self.contents_json, data['quality'])
         self.quality = data['quality']
+
+    """
+    def set_streaming(self, data):
+        self.streaming_json = data
+        logger.debug(data)
+        logger.debug('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+
+        tmps = data['playurl'].split('hls')
+        tmps[0] = data['etcurl'].split('etc')[0].lower().replace('pooq.co.kr', 'wavve.com')
+        self.playurl = '%shls%s' % (tmps[0], tmps[1])
+        self.playurl = self.playurl.replace('/2000/', '/').replace('chunklist.m3u8', 'chunklist2000.m3u8')
+        import framework.wavve.api as Wavve
+        self.filename = Wavve.get_filename(self.contents_json, data['quality'])
+        self.quality = data['quality']
+    """

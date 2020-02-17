@@ -297,6 +297,28 @@ def ajax(sub):
         logger.error('Exception:%s', e)
         logger.error(traceback.format_exc())
 
+# 2020-02-18 by Starbuck
+@blueprint.route('/api/<sub>', methods=['GET', 'POST'])
+def api(sub):
+    if sub == 'chunklist.m3u8':
+        try:
+            url = request.args.get('url')
+            data = requests.get(url).content
+            
+            if data.find('https://') == -1:
+                channelcode = url.split('/')[4].lower()
+                host = url.split('chunklist.m3u8')[0].replace('vod-su','vod-'+channelcode).replace('pooq.co.kr','wavve.com')
+                nlines = []
+                for line in data.splitlines():
+                    if line.find('.ts') != -1:
+                        line = host + line
+                    nlines.append(line)
+                data = "\n".join(line.strip() for line in nlines)
+            return Response(data, mimetype='text/plain')
+        except Exception as e: 
+            logger.error('Exception:%s', e)
+            logger.error(traceback.format_exc())
+            return str(e)
 
 
 
