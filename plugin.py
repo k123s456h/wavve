@@ -170,6 +170,7 @@ def second_menu(sub, sub2):
 # For UI                                                            
 #########################################################
 @blueprint.route('/ajax/<sub>', methods=['GET', 'POST'])
+@login_required
 def ajax(sub):
     logger.debug('Wavve AJAX sub:%s', sub)
     try:     
