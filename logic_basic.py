@@ -129,7 +129,7 @@ class LogicBasic(object):
             save_path = ModelSetting.get('save_path')
             max_pf_count = ModelSetting.get('max_pf_count')
             tmp = Wavve.get_prefer_url(url)
-            f = ffmpeg.Ffmpeg(url, filename, plugin_id=-1, listener=LogicBasic.ffmpeg_listener, max_pf_count=max_pf_count, call_plugin='wavve_basic', save_path=save_path)
+            f = ffmpeg.Ffmpeg(tmp, filename, plugin_id=-1, listener=LogicBasic.ffmpeg_listener, max_pf_count=max_pf_count, call_plugin='wavve_basic', save_path=save_path)
             #f.start_and_wait()
             f.start()
             #time.sleep(60)
