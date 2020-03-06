@@ -155,8 +155,8 @@ class LogicProgram(object):
                     plugin.socketio_list_refresh()
                     continue
 
-
-                f = ffmpeg.Ffmpeg(streaming_data['playurl'], entity.json_data['filename'], plugin_id=entity.entity_id, listener=LogicProgram.ffmpeg_listener, max_pf_count=max_pf_count, call_plugin='wavve_program', save_path=save_path)
+                tmp = Wavve.get_prefer_url(streaming_data['playurl'])
+                f = ffmpeg.Ffmpeg(tmp, entity.json_data['filename'], plugin_id=entity.entity_id, listener=LogicProgram.ffmpeg_listener, max_pf_count=max_pf_count, call_plugin='wavve_program', save_path=save_path)
                 f.start()
                 LogicProgram.current_ffmpeg_count += 1
                 LogicProgram.download_queue.task_done()    

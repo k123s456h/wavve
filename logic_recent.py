@@ -212,8 +212,9 @@ class LogicRecent(object):
                         logger.debug('FFMPEG Start.. id:%s', episode.id)
                         if episode.id is None:
                             logger.debug('PROGRAM:%s', episode.programtitle)
-                        
-                        f = ffmpeg.Ffmpeg(episode.playurl, episode.filename, plugin_id=episode.id, listener=LogicBasic.ffmpeg_listener, max_pf_count=max_pf_count, call_plugin='%s_recent' % package_name, save_path=save_path)
+                        tmp = Wavve.get_prefer_url(episode.playurl)
+
+                        f = ffmpeg.Ffmpeg(tmp, episode.filename, plugin_id=episode.id, listener=LogicBasic.ffmpeg_listener, max_pf_count=max_pf_count, call_plugin='%s_recent' % package_name, save_path=save_path)
                         f.start()
                         LogicRecent.current_auto_count_ffmpeg += 1
                         #f.start_and_wait()
