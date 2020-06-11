@@ -98,8 +98,7 @@ def second_menu(sub, sub2):
     if sub == 'basic':
         if sub2 == 'setting':
             try:
-                setting_list = db.session.query(ModelSetting).all()
-                arg = Util.db_list_to_dict(setting_list)
+                arg = ModelSetting.to_dict()
                 return render_template('%s_%s_%s.html' % (package_name, sub, sub2), arg=arg)
             except Exception as e: 
                 logger.error('Exception:%s', e)

@@ -3,16 +3,20 @@
 # python
 import os
 import traceback
-import json
 from datetime import datetime
+import json
 
 # third-party
+from sqlalchemy import or_, and_, func, not_
+from sqlalchemy.orm import backref
 
 # sjva 공용
-from framework import db, app, path_app_root
+from framework import db, path_app_root, app
+from framework.util import Util
 
 # 패키지
 from .plugin import logger, package_name
+#########################################################
 
 
 db_file = os.path.join(path_app_root, 'data', 'db', '%s.db' % package_name)
@@ -44,7 +48,24 @@ class ModelSetting(db.Model):
         except Exception as e:
             logger.error('Exception:%s %s', e, key)
             logger.error(traceback.format_exc())
+            
     
+    @staticmethod
+    def get_int(key):
+        try:
+            return int(ModelSetting.get(key))
+        except Exception as e:
+            logger.error('Exception:%s %s', e, key)
+            logger.error(traceback.format_exc())
+    
+    @staticmethod
+    def get_bool(key):
+        try:
+            return (ModelSetting.get(key) == 'True')
+        except Exception as e:
+            logger.error('Exception:%s %s', e, key)
+            logger.error(traceback.format_exc())
+
     @staticmethod
     def set(key, value):
         try:
@@ -57,6 +78,34 @@ class ModelSetting(db.Model):
         except Exception as e:
             logger.error('Exception:%s %s', e, key)
             logger.error(traceback.format_exc())
+
+    @staticmethod
+    def to_dict():
+        try:
+            ret = Util.db_list_to_dict(db.session.query(ModelSetting).all())
+            ret['package_name'] = package_name
+            return ret 
+        except Exception as e:
+            logger.error('Exception:%s ', e)
+            logger.error(traceback.format_exc())
+
+
+    @staticmethod
+    def setting_save(req):
+        try:
+            for key, value in req.form.items():
+                logger.debug('Key:%s Value:%s', key, value)
+                if key in ['scheduler', 'is_running']:
+                    continue
+                entity = db.session.query(ModelSetting).filter_by(key=key).with_for_update().first()
+                entity.value = value
+            db.session.commit()
+            return True                  
+        except Exception as e: 
+            logger.error('Exception:%s', e)
+            logger.error(traceback.format_exc())
+            logger.debug('Error Key:%s Value:%s', key, value)
+            return False
 
 #########################################################
 

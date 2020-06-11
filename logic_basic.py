@@ -85,6 +85,12 @@ class LogicBasic(object):
                 data = Wavve.vod_contents_contentid(code)
                 contenttype = 'onairvod' if data['type'] == 'onair' else 'vod'
                 #data2 = Wavve.streaming(contenttype, code, quality, ModelSetting.get('credential'))
+                proxy = None
+                #if ModelSetting.get_bool('use_proxy'):
+                #    proxy = ModelSetting.get('proxy_url')
+                #logger.debug('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
+                #logger.debug(proxy)
+                #data2 = Wavve.streaming(contenttype, code, quality, ModelSetting.get('credential'), proxy=proxy)
                 data2 = Wavve.streaming(contenttype, code, quality, ModelSetting.get('credential'))
                 logger.debug(data2)
                 data3 = {}
@@ -126,10 +132,14 @@ class LogicBasic(object):
     @staticmethod
     def download_url(url, filename):
         try:
+            logger.debug('download_url : %s', url)
             save_path = ModelSetting.get('save_path')
             max_pf_count = ModelSetting.get('max_pf_count')
             tmp = Wavve.get_prefer_url(url)
-            f = ffmpeg.Ffmpeg(tmp, filename, plugin_id=-1, listener=LogicBasic.ffmpeg_listener, max_pf_count=max_pf_count, call_plugin='wavve_basic', save_path=save_path)
+            proxy = None
+            if ModelSetting.get_bool('use_proxy'):
+                proxy = ModelSetting.get('proxy_url')
+            f = ffmpeg.Ffmpeg(tmp, filename, plugin_id=-1, listener=LogicBasic.ffmpeg_listener, max_pf_count=max_pf_count, call_plugin='wavve_basic', save_path=save_path, proxy=proxy)
             #f.start_and_wait()
             f.start()
             #time.sleep(60)
