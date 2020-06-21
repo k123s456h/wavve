@@ -25,7 +25,6 @@ logger = get_logger(package_name)
 import framework.wavve.api as Wavve
 from .model import ModelSetting
 from .logic import Logic
-from .logic_basic import LogicBasic
 from .logic_recent import LogicRecent
 from .logic_program import LogicProgram, WavveProgramEntity
 
@@ -212,6 +211,7 @@ def ajax(sub):
             quality = None
             if 'quality' in request.form:
                 quality = request.form['quality']
+            from .logic_basic import LogicBasic
             ret = LogicBasic.analyze(url, quality=quality)
             return jsonify(ret)
         elif sub == 'episode_download_url':
@@ -219,6 +219,7 @@ def ajax(sub):
             url = request.form['url']
             filename = request.form['filename']
             logger.debug('download %s %s', url, filename)
+            from .logic_basic import LogicBasic
             ret = LogicBasic.download_url(url, filename)
             return jsonify(ret)
        
@@ -257,6 +258,7 @@ def ajax(sub):
             try:
                 code = request.form['code']
                 page = request.form['page']
+                from .logic_basic import LogicBasic
                 ret = LogicBasic.analyze_program_page(code, page)
                 return jsonify(ret)
             except Exception as e: 
