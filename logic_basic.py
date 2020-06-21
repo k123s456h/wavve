@@ -29,14 +29,17 @@ import ffmpeg
         
 class LogicBasic(object):
     @staticmethod
-    def login():
+    def login(force=False):
         try:
-            credential = Wavve.do_login(ModelSetting.get('id'), ModelSetting.get('pw'))
-            logger.info('Wavve Credential : %s', credential)
-            if credential is None:
-                return False
-            db.session.query(ModelSetting).filter_by(key='credential').with_for_update().first().value = credential
-            db.session.commit()
+            if ModelSetting.get('credential') == '' or  force:
+                credential = Wavve.do_login(ModelSetting.get('id'), ModelSetting.get('pw'))
+                logger.info('Wavve Credential : %s', credential)
+                if credential is None:
+                    return False
+                ModelSetting.set('credential', credential)
+                db.session.commit()
+            else:
+                pass
             return True
         except Exception as e: 
             logger.error('Exception:%s', e)
@@ -84,15 +87,18 @@ class LogicBasic(object):
                     quality = ModelSetting.get('quality')
                 data = Wavve.vod_contents_contentid(code)
                 contenttype = 'onairvod' if data['type'] == 'onair' else 'vod'
-                #data2 = Wavve.streaming(contenttype, code, quality, ModelSetting.get('credential'))
                 proxy = None
-                #if ModelSetting.get_bool('use_proxy'):
-                #    proxy = ModelSetting.get('proxy_url')
-                #logger.debug('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX')
-                #logger.debug(proxy)
-                #data2 = Wavve.streaming(contenttype, code, quality, ModelSetting.get('credential'), proxy=proxy)
                 data2 = Wavve.streaming(contenttype, code, quality, ModelSetting.get('credential'))
-                logger.debug(data2)
+                try:
+                    tmp = data2['playurl']
+                except:
+                    try:
+                        LogicBasic.do_login(force=True)
+                        data2 = Wavve.streaming(contenttype, code, quality, ModelSetting.get('credential'))
+                    except:
+                        pass
+
+                #logger.debug(data2)
                 data3 = {}
                 data3['filename'] = Wavve.get_filename(data, quality)
                 data3['preview'] = (data2['playurl'].find('preview') != -1)
@@ -108,6 +114,15 @@ class LogicBasic(object):
                     quality = ModelSetting.get('quality')
                 data = Wavve.movie_contents_movieid(code)
                 data2 = Wavve.streaming('movie', code, quality, ModelSetting.get('credential'))
+                try:
+                    tmp = data2['playurl']
+                except:
+                    try:
+                        LogicBasic.do_login(force=True)
+                        data2 = Wavve.streaming('movie', code, quality, ModelSetting.get('credential'))
+                    except:
+                        pass
+
                 data3 = {}
                 data3['filename'] = Wavve.get_filename(data, quality)
                 data3['preview'] = (data2['playurl'].find('preview') != -1)

@@ -110,6 +110,15 @@ class LogicRecent(object):
                         # URL때문에 DB에 있어도 다시 JSON을 받아야함.
                         for episode_try in range(3):
                             json_data = Wavve.streaming(contenttype, contentid, auto_quality, credential)
+                            try:
+                                tmp = json_data['playurl']
+                            except:
+                                try:
+                                    LogicBasic.do_login(force=True)
+                                    json_data = Wavve.streaming(contenttype, contentid, auto_quality, credential)
+                                except:
+                                    pass
+
                             if json_data is None:
                                 logger.debug('episode fail.. %s', episode_try)
                                 time.sleep(20)

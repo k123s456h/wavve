@@ -125,6 +125,16 @@ class LogicProgram(object):
                 while True:
                     count += 1
                     streaming_data = Wavve.streaming(contenttype, entity.episode_code, entity.quality, ModelSetting.get('credential'))
+                    try:
+                        tmp = data2['playurl']
+                    except:
+                        try:
+                            from .logic_basic import LogicBasic
+                            LogicBasic.do_login(force=True)
+                            streaming_data = Wavve.streaming(contenttype, entity.episode_code, entity.quality, ModelSetting.get('credential'))
+                        except:
+                            pass
+
                     entity.json_data['filename'] = Wavve.get_filename(entity.json_data, streaming_data['quality'])
                     if streaming_data is not None:
                         break
