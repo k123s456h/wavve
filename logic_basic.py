@@ -93,7 +93,7 @@ class LogicBasic(object):
                     tmp = data2['playurl']
                 except:
                     try:
-                        LogicBasic.login(force=True)
+                        LogicBasic.login()
                         data2 = Wavve.streaming(contenttype, code, quality, ModelSetting.get('credential'))
                     except:
                         pass
@@ -118,7 +118,7 @@ class LogicBasic(object):
                     tmp = data2['playurl']
                 except:
                     try:
-                        LogicBasic.login(force=True)
+                        LogicBasic.login()
                         data2 = Wavve.streaming('movie', code, quality, ModelSetting.get('credential'))
                     except:
                         pass

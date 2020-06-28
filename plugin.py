@@ -280,7 +280,7 @@ def ajax(sub):
                 except:
                     try:
                         from .logic_basic import LogicBasic
-                        LogicBasic.login(force=True)
+                        LogicBasic.login()
                         ret = Wavve.streaming(ret['type'], ret['contentid'], '2160p', ModelSetting.get('credential'))
                     except:
                         pass
