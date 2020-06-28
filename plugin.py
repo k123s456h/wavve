@@ -193,15 +193,20 @@ def ajax(sub):
                 logger.error('Exception:%s', e)
                 logger.error(traceback.format_exc())
                 return jsonify('fail')
-        elif sub == 'login':
-            try:
-                ret = Wavve.do_login(request.form['id'], request.form['pw'], json_return=True)
-                return jsonify(ret)
-            except Exception as e: 
-                logger.error('Exception:%s', e)
-                logger.error(traceback.format_exc())
-                return jsonify('fail')
-
+        #elif sub == 'wavve_credential_reset':
+        #    #ModelSetting.set('credential', '')
+        #    from .logic_basic import LogicBasic
+        #    LogicBasic.login(force=True)
+        #    return jsonify(True)
+        #elif sub == 'login':
+        #    try:
+        #        ret = Wavve.do_login(request.form['id'], request.form['pw'], json_return=True)
+        #        return jsonify(ret)
+        #    except Exception as e: 
+        #        logger.error('Exception:%s', e)
+        #        logger.error(traceback.format_exc())
+        #        return jsonify('fail')
+        
         #########################################################
         # 기본
         #########################################################
@@ -275,7 +280,7 @@ def ajax(sub):
                 except:
                     try:
                         from .logic_basic import LogicBasic
-                        LogicBasic.do_login(force=True)
+                        LogicBasic.login(force=True)
                         ret = Wavve.streaming(ret['type'], ret['contentid'], '2160p', ModelSetting.get('credential'))
                     except:
                         pass

@@ -114,7 +114,7 @@ class LogicRecent(object):
                                 tmp = json_data['playurl']
                             except:
                                 try:
-                                    LogicBasic.do_login(force=True)
+                                    LogicBasic.login(force=True)
                                     json_data = Wavve.streaming(contenttype, contentid, auto_quality, credential)
                                 except:
                                     pass

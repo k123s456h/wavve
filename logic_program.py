@@ -130,7 +130,7 @@ class LogicProgram(object):
                     except:
                         try:
                             from .logic_basic import LogicBasic
-                            LogicBasic.do_login(force=True)
+                            LogicBasic.login(force=True)
                             streaming_data = Wavve.streaming(contenttype, entity.episode_code, entity.quality, ModelSetting.get('credential'))
                         except:
                             pass
