@@ -14,8 +14,9 @@ from flask_socketio import SocketIO, emit, send
 
 # sjva 공용
 from framework.logger import get_logger
-from framework import app, db, scheduler, socketio
+from framework import app, db, scheduler, socketio, check_api
 from framework.util import Util, AlchemyEncoder
+from system.model import ModelSetting as SystemModelSetting
 
 # 로그
 package_name = __name__.split('.')[0]
@@ -358,3 +359,47 @@ def socketio_list_refresh():
     tmp = json.dumps(data, cls=AlchemyEncoder)
     tmp = json.loads(tmp)
     socketio_callback('list_refresh', tmp)
+
+
+#########################################################
+# API
+#########################################################
+@blueprint.route('/api/<sub>', methods=['GET', 'POST'])
+@check_api
+def api(sub):
+    try:
+        if sub == 'm3u':
+            return LogicRecent.make_m3u()[0]
+        elif sub == 'xml' or sub == 'xmltv.php':
+            data = LogicRecent.make_m3u()[1]
+            return Response(data, mimetype='application/xml')
+        elif sub == 'streaming':
+            contentid = request.args.get('contentid')
+            
+            auto_quality = ModelSetting.get('auto_quality')
+            retry_user_abort = (ModelSetting.get('retry_user_abort') == 'True')
+            credential = ModelSetting.get('credential')
+            #contenttype = 'onairvod' if vod['type'] == 'onair' else 'vod'
+            contenttype = 'onairvod'
+            json_data = Wavve.streaming(contenttype, contentid, auto_quality, credential)
+            tmp = json_data['playurl']
+            logger.debug(tmp)
+            return redirect(tmp, code=302)
+            return tmp
+    except Exception as e: 
+        logger.error('Exception:%s', e)
+        logger.error(traceback.format_exc())
+
+@blueprint.route('/get.php')
+def get_php():
+    url = '/%s/api/m3u' % package_name
+    if SystemModelSetting.get_bool('auth_use_apikey'):
+        url += '?apikey=%s' % SystemModelSetting.get('auth_apikey') 
+    return redirect(url)
+
+@blueprint.route('/xmltv.php')
+def xmltv_php():
+    url = '/%s/api/xml' % package_name
+    if SystemModelSetting.get_bool('auth_use_apikey'):
+        url += '?apikey=%s' % SystemModelSetting.get('auth_apikey') 
+    return redirect(url)
