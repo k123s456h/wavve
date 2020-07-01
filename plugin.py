@@ -375,12 +375,10 @@ def api(sub):
             return Response(data, mimetype='application/xml')
         elif sub == 'streaming':
             contentid = request.args.get('contentid')
-            
+            contenttype = request.args.get('type')
             auto_quality = ModelSetting.get('auto_quality')
             retry_user_abort = (ModelSetting.get('retry_user_abort') == 'True')
             credential = ModelSetting.get('credential')
-            #contenttype = 'onairvod' if vod['type'] == 'onair' else 'vod'
-            contenttype = 'onairvod'
             json_data = Wavve.streaming(contenttype, contentid, auto_quality, credential)
             tmp = json_data['playurl']
             logger.debug(tmp)
