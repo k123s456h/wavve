@@ -12,15 +12,12 @@ from pytz import timezone
 import requests
 from flask import Blueprint, request, Response, send_file, render_template, redirect, jsonify
 from sqlalchemy import desc, or_
-from lxml import etree as ET
-import lxml
 
 # sjva 공용
 from framework.logger import get_logger
 from framework import app, db, scheduler, path_data
 from framework.job import Job
 from framework.util import Util
-from system.model import ModelSetting as SystemModelSetting
 
 # 패키지
 import framework.wavve.api as Wavve
@@ -329,41 +326,3 @@ class LogicRecent(object):
             logger.error('Exception:%s', e)
             logger.error(traceback.format_exc())
             return False
-
-
-    @staticmethod
-    def make_m3u():
-        try:
-            vod_list = Wavve.vod_newcontents(page=1, limit=100)['list']
-            data = "#EXTM3U\n"
-            root = ET.Element('tv')
-            root.set('generator-info-name', "wavve")
-            form = '#EXTINF:-1 tvg-id="{contentid}" tvg-name="{title}" tvh-chno="{channel_number}" tvg-logo="" group-title="웨이브 최신 VOD",{title}\n{url}\n'
-            for idx, info in enumerate(vod_list):
-                title = info['programtitle']
-                if info['episodenumber'] != '':
-                    title += ' (%s회)' % info['episodenumber']
-                tmp = info['episodetitle'].find('Quick VOD')
-                if tmp != -1:
-                    title += info['episodetitle'][tmp-2:]
-
-                video_url = '%s/%s/api/streaming?contentid=%s&type=%s' % (SystemModelSetting.get('ddns'), package_name, info['contentid'], info['type'])    
-                if SystemModelSetting.get_bool('auth_use_apikey'):
-                    video_url += '&apikey=%s' % SystemModelSetting.get('auth_apikey')
-                data += form.format(contentid=info['contentid'], title=title, channel_number=(idx+1), logo='', url=video_url)
-
-                channel_tag = ET.SubElement(root, 'channel') 
-                channel_tag.set('id', info['contentid'])
-                #channel_tag.set('repeat-programs', 'true')
-
-                display_name_tag = ET.SubElement(channel_tag, 'display-name') 
-                display_name_tag.text = '%s(%s)' % (title, idx+1)
-                display_name_tag = ET.SubElement(channel_tag, 'display-number') 
-                display_name_tag.text = str(idx+1)
-
-            tree = ET.ElementTree(root)
-            ret = ET.tostring(root, pretty_print=True, xml_declaration=True, encoding="utf-8")
-            return data, ret
-        except Exception, e:
-            logger.error('Exception:%s', e)
-            logger.error(traceback.format_exc())  
