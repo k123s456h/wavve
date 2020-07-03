@@ -13,6 +13,8 @@
     {{ macros.setting_checkbox('auto_start', '시작시 자동실행', value=arg['auto_start'], desc='On : 시작시 자동으로 스케쥴러에 등록됩니다.') }}
     {{ macros.setting_input_text('auto_save_path', '저장 폴더', value=arg['auto_save_path'], desc='정상적으로 완료된 파일이 이동할 폴더 입니다. ') }}
     {{ macros.setting_select('auto_quality', '기본 화질', [['2160p', '2160p'], ['1080p', '1080p'], ['720p', '720p'], ['480p', '480p'], ['360p', '360p']], col='3', value=arg['auto_quality']) }}
+    {{ macros.setting_checkbox('2160_receive_1080', '화질 2160p시 일정시간 후 1080p로 받기', value=arg['2160_receive_1080'], desc='On : 기본 화질이 2160p인 경우 일정시간 대기 후 시간초과시 1080p로 받습니다.') }}
+    {{ macros.setting_input_text('2160_wait_minute', '화질 2160p시 일정시간 후 1080p로 받기 대기시간', value=arg['2160_wait_minute'], col='3', desc=['방송이 DB에 입력된 시간 기준입니다. minute 단위']) }}
     {{ macros.setting_input_int('auto_page', '탐색 페이지수', value=arg['auto_page'], min='1', placeholder='2') }}
     {{ macros.setting_input_int('auto_count_ffmpeg', '동시 다운로드 수', value=arg['auto_count_ffmpeg'], desc='동시에 다운로드 할 에피소드 갯수입니다.') }}
     {{ macros.setting_checkbox('retry_user_abort', '사용자 중지 항목 다시 받기', value=arg['retry_user_abort'], desc='On : 다음 스케쥴링 때 다시 받습니다.') }}

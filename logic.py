@@ -58,6 +58,8 @@ class Logic(object):
         'whitelist_program' : '',
         'whitelist_first_episode_download' : 'True',
         'auto_count_ffmpeg' : '4',
+        '2160_receive_1080' : 'False',
+        '2160_wait_minute' : '100',
 
         # 방송별
         'program_auto_path' : os.path.join(path_data, 'download'),

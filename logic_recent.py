@@ -101,7 +101,7 @@ class LogicRecent(object):
                                 # 1:알수없는이유 시작실패, 2 타임오버, 3, 강제스톱.킬
                                 # 11:제외채널, 12:제외프로그램
                                 # 13:장르제외, 14:화이트리스트 제외, 7:권한없음, 6:화질다름
-                                logger.debug('EPC Abort : %s', episode.etc_abort)
+                                #logger.debug('EPC Abort : %s', episode.etc_abort)
                                 continue
                             elif episode.retry > 20:
                                 logger.debug('retry 20')
@@ -143,11 +143,7 @@ class LogicRecent(object):
                             episode.etc_abort = 7
                             db.session.commit()
                             continue
-
-                        if episode.quality != auto_quality:
-                            episode.etc_abort = 6
-                            db.session.commit()
-                            continue
+                        
                         # 채널, 프로그램 체크
                         flag_download = True
                         if contenttype == 'onairvod':
@@ -208,6 +204,21 @@ class LogicRecent(object):
                                     flag_download = False
                             if not flag_download and whitelist_first_episode_download and episode.episodenumber == '1':
                                 flag_download = True
+
+                        #logger.debug(episode.quality)
+                        if flag_download and episode.quality != auto_quality:
+                            if auto_quality == '2160p' and episode.quality == '1080p' and ModelSetting.get_bool('2160_receive_1080'):
+                                if episode.created_time + timedelta(minutes=ModelSetting.get_int('2160_wait_minute')) < datetime.now():
+                                    logger.debug('1080p download')
+                                    pass
+                                else:
+                                    episode.etc_abort = 5
+                                    db.session.commit()
+                                    continue
+                            else:
+                                episode.etc_abort = 6
+                                db.session.commit()
+                                continue
 
                         if flag_download:
                             episode.etc_abort = 0
