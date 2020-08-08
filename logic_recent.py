@@ -78,7 +78,7 @@ class LogicRecent(object):
                             if LogicRecent.current_auto_count_ffmpeg < int(ModelSetting.get('auto_count_ffmpeg')):
                                 break
                             time.sleep(10)
-                            logger.debug('wavve wait : %s', LogicRecent.current_auto_count_ffmpeg)
+                            #logger.debug('wavve wait : %s', LogicRecent.current_auto_count_ffmpeg)
                         #logger.debug(vod)
                         contentid = vod["contentid"]
                         contenttype = 'onairvod' if vod['type'] == 'onair' else 'vod'
