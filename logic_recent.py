@@ -245,7 +245,8 @@ class LogicRecent(object):
                     except Exception as e: 
                         logger.error('Exception:%s', e)
                         logger.error(traceback.format_exc())
-                        db.session.rollback()
+                        #db.session.rollback()
+                        logger.debug('ROLLBACK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
                     finally:
                         #logger.debug('wait..')
                         pass
