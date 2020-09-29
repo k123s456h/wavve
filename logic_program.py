@@ -189,7 +189,7 @@ class LogicProgram(object):
                     entity.ffmpeg_status_kor = '파일 있음'
                     entity.ffmpeg_percent = 100
                     ### edit by lapis
-                    ModelWavveProgram.delete(entity.episode_code)
+                    ModelWavveProgram.delete(entity.episode_code, entity.quality)
                     ###
                     plugin.socketio_list_refresh()
                     continue
