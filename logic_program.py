@@ -274,7 +274,7 @@ class LogicProgram(object):
                     ret['ret'] = 'refresh'
                 
                 ### edit by lapis
-                ModelWavveProgram.delete(entity.episode_code)
+                ModelWavveProgram.delete(entity.episode_code, entity.quality)
                 ### 
             elif command == 'reset':
                 if LogicProgram.download_queue is not None:
